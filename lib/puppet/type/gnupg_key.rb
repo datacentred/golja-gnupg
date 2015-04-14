@@ -139,6 +139,18 @@ Puppet::Type.newtype(:gnupg_key) do
     end
   end
 
+  newparam(:trustlevel) do
+    desc "Trust level. This is the gpg owner trust level for the key."
+
+    validate do |value|
+      unless value.length == 1 and value =~ /^[1-6]$/
+        raise ArgumentError, "Invalid trust level"
+      end
+    end
+
+    defaultto '1'
+  end
+
   newparam(:key_type) do
     desc "The type of the key(s) being managed."
 

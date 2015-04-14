@@ -136,6 +136,23 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
     @content = tmp.content
   end
 
+  def create_trustdb
+    begin
+      fingerprint_command = "gpg --fingerprint --with-colons #{resource[:key_id]} | awk -F: '$1 == \"fpr\" {print $10;}'"
+      fingerprint = Puppet::Util::Execution.execute(fingerprint_command, :uid => user_id)
+    rescue Puppet::ExecutionFailure => e
+      raise Puppet::Error, "Could not determine fingerprint for  #{resource[:key_id]} for user #{resource[:user]}: #{fingerprint}"
+    end
+    ownertrust = fingerprint + ":" + :trustlevel.to_s + ":"
+    path = create_temporary_file(user_id, ownertrust)
+    command = "gpg --import-ownertrust #{path}"
+    begin
+      output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
+    rescue Puppet::ExecutionFailure => e
+      raise Puppet::Error, "Error while importing ownertrust for #{resource[:key_id]}"
+    end
+  end
+
   def exists?
     # public and both can be grouped since private can't be present without public,
     # both only applies to delete and delete still has something to do if only
