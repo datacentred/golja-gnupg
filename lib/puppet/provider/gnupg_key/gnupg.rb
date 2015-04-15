@@ -145,7 +145,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
   def create_trustdb
     fingerprint = get_fingerprint_from_key_id
     fingerprint = fingerprint.delete!("\n")
-    ownertrust = fingerprint + ":#{resource[:trustlevel]}:\n"
+    ownertrust = fingerprint + ":#{resource[:trust_level]}:\n"
     path = create_temporary_file(user_id, ownertrust)
 
     command = "gpg --import-ownertrust #{path}"

@@ -139,7 +139,7 @@ Puppet::Type.newtype(:gnupg_key) do
     end
   end
 
-  newparam(:trustlevel) do
+  newparam(:trust_level) do
     desc "Trust level. This is the gpg owner trust level for the key."
 
     validate do |value|
