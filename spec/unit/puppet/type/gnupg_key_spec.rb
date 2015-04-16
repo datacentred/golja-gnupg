@@ -124,4 +124,10 @@ describe Puppet::Type.type(:gnupg_key) do
     }.to raise_error(/Provided key content does not look like a private key\./)
   end
 
+  it "should default to trustlevel 1" do
+    expect(@gnupg_key[:trustlevel]).to eq '1'
+  end
+
+
+
 end

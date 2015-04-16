@@ -38,3 +38,11 @@ gnupg_key {'add_key_by_local_source_file':
   user       => root,
   key_source => 'file:///home/foo/public.key',
 }
+
+gnupg_key {'add_trusted_key_by_local_source_file':
+  ensure     => present,
+  key_id     => F657C4B5,
+  user       => root,
+  key_source => 'file:///home/foo/public.key',
+  trustlevel => '6'
+}
