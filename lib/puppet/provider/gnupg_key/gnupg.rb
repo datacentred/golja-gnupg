@@ -18,8 +18,6 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
   commands :awk => 'awk'
 
   def remove_key
-    fingerprint = get_fingerprint_from_key_id
-
     if resource[:key_type] == :public
       command = "gpg --batch --yes --delete-key #{fingerprint}"
     elsif resource[:key_type] == :private
@@ -48,8 +46,8 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
     create_trustdb
   end
 
-  def get_fingerprint_from_key_id
-    begin
+  def fingerprint
+    @fingerprint ||= begin
       fingerprint_command = "gpg --fingerprint --with-colons #{resource[:key_id]} | awk -F: '$1 == \"fpr\" {print $10;}'"
       Puppet::Util::Execution.execute(fingerprint_command, :uid => user_id)
     rescue Puppet::ExecutionFailure => e
@@ -142,9 +140,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
   end
 
   def create_trustdb
-    fingerprint = get_fingerprint_from_key_id
-    fingerprint = fingerprint.delete!("\n")
-    ownertrust = fingerprint + ":#{resource[:trust_level]}:\n"
+    ownertrust = fingerprint.delete("\n") + ":#{resource[:trust_level]}:\n"
     path = create_temporary_file(user_id, ownertrust)
 
     command = "gpg --import-ownertrust #{path}"
