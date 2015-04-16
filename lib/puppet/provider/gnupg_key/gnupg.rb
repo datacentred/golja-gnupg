@@ -76,9 +76,9 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
     path = create_temporary_file(user_id, resource[:key_content])
     command = "gpg --import #{path}"
     begin
-    output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
+      Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
     rescue Puppet::ExecutionFailure => e
-      raise Puppet::Error, "Error while importing key #{resource[:key_id]} using key content: #{output}"
+      raise Puppet::Error, "Error while importing key #{resource[:key_id]} using key content. Error message was #{e.message}"
     end
   end
 
@@ -109,7 +109,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
     begin
       output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
     rescue Puppet::ExecutionFailure => e
-      raise Puppet::Error, "Error while importing key #{resource[:key_id]} from #{resource[:key_source]}:\n#{output}}"
+      raise Puppet::Error, "Error while importing key #{resource[:key_id]} from #{resource[:key_source]}:#{output}}"
     end
   end
 
@@ -145,7 +145,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
 
     command = "gpg --import-ownertrust #{path}"
     begin
-      output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
+      Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
     rescue Puppet::ExecutionFailure => e
       raise Puppet::Error, "Error while importing ownertrust for #{resource[:key_id]}"
     end
