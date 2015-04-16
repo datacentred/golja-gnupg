@@ -51,8 +51,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
   def get_fingerprint_from_key_id
     begin
       fingerprint_command = "gpg --fingerprint --with-colons #{resource[:key_id]} | awk -F: '$1 == \"fpr\" {print $10;}'"
-      fingerprint = Puppet::Util::Execution.execute(fingerprint_command, :uid => user_id)
-      return fingerprint
+      Puppet::Util::Execution.execute(fingerprint_command, :uid => user_id)
     rescue Puppet::ExecutionFailure => e
       raise Puppet::Error, "Could not determine fingerprint for  #{resource[:key_id]} for user #{resource[:user]}: #{fingerprint}"
     end
@@ -79,9 +78,9 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
     path = create_temporary_file(user_id, resource[:key_content])
     command = "gpg --import #{path}"
     begin
-      `#{command}`
+    output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
     rescue Puppet::ExecutionFailure => e
-      raise Puppet::Error, "Error while importing key #{resource[:key_id]} using key content:\n#{output}}"
+      raise Puppet::Error, "Error while importing key #{resource[:key_id]} using key content: #{output}"
     end
   end
 
@@ -150,7 +149,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
 
     command = "gpg --import-ownertrust #{path}"
     begin
-      `#{command}`
+      output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
     rescue Puppet::ExecutionFailure => e
       raise Puppet::Error, "Error while importing ownertrust for #{resource[:key_id]}"
     end
